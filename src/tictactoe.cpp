@@ -29,13 +29,6 @@ bool Board::makeMove(int position, std::string token) {
     return false;
 }
 
-bool Board::makeXmove(int position) {
-    return makeMove(position, "X");
-}
-bool Board::makeOmove(int position) {
-    return makeMove(position, "O");
-}
-
 bool Board::canMakeMove(int position) {
     if (position < 1 || position > 9) {
         return false;
@@ -72,7 +65,7 @@ bool Board::isGameWon() {
     if (grid.at(1) == grid.at(4) && grid.at(4) == grid.at(7)) {
         return true;
     }
-    if (grid.at(3) == grid.at(5) && grid.at(5) == grid.at(8)) {
+    if (grid.at(2) == grid.at(5) && grid.at(5) == grid.at(8)) {
         return true;
     }
 
@@ -91,7 +84,7 @@ void Board::printBoard() {
     for (int i = 0; i < grid.size(); ++i) {
 
         if ( i % 3 == 0 && i != 0) { // new line on 3 and 6 index
-            std::cout << std::endl << "----------" << std::endl;
+            std::cout << std::endl << "--+---+---" << std::endl;
         }
 
         std::cout << grid.at(i);
@@ -108,6 +101,10 @@ Player::Player(std::string token) {
     winCount = 0;
 }
 
+void Player::makeMove(Board& board, int position) {
+    board.makeMove(position, token);
+}
+
 std::string Player::info() {
     return "Player " + token;
 }
@@ -117,7 +114,7 @@ void Player::win() {
 }
 
 Player::~Player() {
-    std::cout << "Player " << token << " won " << winCount << " times"  << std::endl;
+    std::cout << info() << " - # of wins: " << winCount << std::endl;
     std::cout << "Goodbye!"  << std::endl;
 }
 
@@ -126,9 +123,11 @@ Game::Game() {
     playerO = new Player("O");
     currentPlayer = playerX;
     winner = nullptr;
+    std::cout << "Welcome to Tic-Tac-Toe!" << std::endl;
 }
 
 Game::~Game() {
+    std::cout << "Goodbye Players!" << std::endl;
     delete playerX;
     delete playerO;
 }
@@ -144,11 +143,14 @@ void Game::changePlayer() {
 bool Game::keepPlaying() {
     bool ask = false;
     if (winner != nullptr) {
-        std::cout << winner->info() << " wins!" << std::endl;
+        std::cout << std::endl << winner->info() << " wins!" << std::endl;
+        currentPlayer = winner;
+        winner = nullptr;
+        changePlayer(); // loser starts next game
         ask = true;
     }
     else if (board.isBoardFull()) {
-        std::cout <<"Draw!!!" << std::endl;
+        std::cout << std::endl << "Draw!!!" << std::endl;
         ask = true;
     }
 
@@ -157,11 +159,6 @@ bool Game::keepPlaying() {
         std::cout << "Play again? (yes or no): ";
         std::cin >> response;
         if (response == "yes") {
-            if (winner != nullptr) {
-                currentPlayer = winner;
-                winner = nullptr;
-            }
-            changePlayer();
             board.initBoard();
             return true;
         }
@@ -170,7 +167,6 @@ bool Game::keepPlaying() {
         }
         std::cout << "That is not a valid entry!" << std::endl;
     }
-
     return true;
 }
 
@@ -180,40 +176,30 @@ bool Game::weHaveAWinner() {
 
 int Game::getPosition() {
     int userInput;
-    while (true) {
-        std::cin >> userInput;
-        if (std::cin.fail()) {
-            userInput = -1;
-        }
-        std::cin.clear(); // Clear the error flag
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the buffer
-        return userInput;
+    std::cin >> userInput;
+    if (std::cin.fail()) {
+        userInput = -1;
     }
+    std::cin.clear(); // Clear the error flag
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the buffer
+    return userInput;
 }
 
 void Game::playGame() {
-    std::cout << "Welcome to Tic-Tac-Toe!" << std::endl;
-    int position;
-    board.initBoard();
     do {
         board.printBoard();
         std::cout << std::endl << currentPlayer->info() << ", what is your move? ";
-        position = getPosition();
+        int position = getPosition();
         if (!board.canMakeMove(position)) {
             std::cout << "That is not a valid move! Try again." << std::endl;
         } else {
-            if (currentPlayer == playerX) {
-                board.makeXmove(position);
-            } else {
-                board.makeOmove(position);
-            }
+            currentPlayer->makeMove(board, position);
             if (weHaveAWinner()) {
                 winner = currentPlayer;
                 winner->win();
+                board.printBoard();
             }
             changePlayer();
         }
     } while (keepPlaying());
-
-    std::cout << "Goodbye Players!" << std::endl;
 }

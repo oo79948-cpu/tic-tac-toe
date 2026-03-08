@@ -4,13 +4,11 @@
 // Your functions go here
 class Board {
     std::vector<std::string> grid;
-    bool makeMove(int position, std::string token);
     public:
     Board();
     void initBoard();
-    bool makeXmove(int position);
-    bool makeOmove(int position);
     bool canMakeMove(int position);
+    bool makeMove(int position, std::string token);
     void printBoard();
     bool isGameWon();
     bool isBoardFull();
@@ -24,6 +22,7 @@ class Player {
     ~Player();
     std::string info();
     void win();
+    void makeMove(Board& board, int position);
 };
 
 class Game {
