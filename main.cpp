@@ -3,5 +3,6 @@
 #include "src/tictactoe.hpp"
 
 int main() {
-  // Your driver program goes here
+    Game game;
+    game.playGame();
 }
