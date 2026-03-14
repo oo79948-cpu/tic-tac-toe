@@ -1,29 +1,7 @@
-#include <string>
-#include <vector>
+#pragma once
 
-// Your functions go here
-class Board {
-    std::vector<std::string> grid;
-    public:
-    Board();
-    void initBoard();
-    bool canMakeMove(int position);
-    bool makeMove(int position, std::string token);
-    void printBoard();
-    bool isGameWon();
-    bool isBoardFull();
-};
-
-class Player {
-    std::string token;
-    int winCount;
-    public:
-    Player(std::string token);
-    ~Player();
-    std::string info();
-    void win();
-    void makeMove(Board& board, int position);
-};
+#include "Board.hpp"
+#include "Player.hpp"
 
 class Game {
     Player *playerX;
@@ -35,6 +13,8 @@ class Game {
     bool keepPlaying();
     bool weHaveAWinner();
     int getPosition();
+    bool getPlayAgain();
+    bool gameEnded();
 public:
     Game();
     ~Game();
